@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoAdmin", "AutoAdmin\AutoAdmin.csproj", "{BFED1ECA-1898-44DB-8FE8-7901FDB2D4F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoAdmin.IntegrationTest", "AutoAdmin.IntegrationTest\AutoAdmin.IntegrationTest.csproj", "{60586020-689D-4AF8-AA5C-B6C534C2F046}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFED1ECA-1898-44DB-8FE8-7901FDB2D4F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFED1ECA-1898-44DB-8FE8-7901FDB2D4F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFED1ECA-1898-44DB-8FE8-7901FDB2D4F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFED1ECA-1898-44DB-8FE8-7901FDB2D4F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60586020-689D-4AF8-AA5C-B6C534C2F046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60586020-689D-4AF8-AA5C-B6C534C2F046}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60586020-689D-4AF8-AA5C-B6C534C2F046}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60586020-689D-4AF8-AA5C-B6C534C2F046}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42712C4D-B712-47AC-83CA-080C5AFDD3F2}
+	EndGlobalSection
+EndGlobal
