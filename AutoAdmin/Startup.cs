@@ -17,21 +17,17 @@ namespace AutoAdmin {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            InjectionFactory.InjectAssemblyServices(services);
-            InjectionFactory.InjectServices(services);
-            InjectionFactory.InjectConfigurationSections(services, Configuration);
-            
+            InjectionFactory.StartInjection(services, Configuration);
             services.AddControllers();
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AutoAdmin", Version = "v1" });
             });
-            
-            DbContext.SetupDb(Configuration);
+            DbContext.SetupDbUntilSucceed(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            if (env.IsDevelopment()) {
+            if (env.IsDevelopment() || env.IsEnvironment("Docker")) {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoAdmin v1"));

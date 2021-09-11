@@ -12,6 +12,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Include="$(SolutionDir)/DbScripts/**" CopyToOutputDirectory="PreserveNewest" LinkBase="DbScripts\" />
+    <None Include="DbScripts/**" CopyToOutputDirectory="PreserveNewest" LinkBase="DbScripts\" />
   </ItemGroup>
 </Project>

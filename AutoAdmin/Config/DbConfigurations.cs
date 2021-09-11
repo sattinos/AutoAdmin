@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using AutoAdmin.Injection.Attributes;
 
 namespace AutoAdmin.Config
 {
-    [Injection.Attributes.ConfigurationSectionAttribute(KeyName)]
+    [ConfigurationSection(KeyName)]
     public class DbConfigurations
     {
         /// <summary>
@@ -27,6 +28,7 @@ namespace AutoAdmin.Config
         public string Port { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
+        public int Interval { get; set; }
         public void Process()
         {
             if (!string.IsNullOrWhiteSpace(ConnectionString))
