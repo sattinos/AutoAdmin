@@ -37,6 +37,40 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             photo.Id.Should().Be(id);
         }
         
+        [Fact(DisplayName = "Should return single photo with selected columns only")]
+        public async Task GetOnePhotoWithProjection() {            
+            var id = new Guid("a8a7d033-651d-11eb-837c-7cd30a813cc1");
+            var photo = await _photoRep.GetOneAsync( new []{nameof(Photo.Name), nameof(Photo.Id)}, "Name = @name", new { name = "arizona" });
+            photo.Should().NotBeNull();
+            photo.Id.Should().Be(id);
+            photo.FileId.Should().BeEmpty();
+            photo.Name.Should().NotBeNullOrWhiteSpace();
+            photo.CreatedAt.Should().BeNull();
+        }
+        
+        [Fact(DisplayName = "Should refuse not found selected columns")]
+        public async Task GetOnePhotoWithProjectionShouldRefuse()
+        {
+            Exception ex = null;
+            try
+            {
+                var id = new Guid("a8a7d033-651d-11eb-837c-7cd30a813cc1");
+                var photo = await _photoRep.GetOneAsync( new []{nameof(Photo.Name), nameof(Photo.Id), "someHackedName"}, "Name = @name", new { name = "arizona" });
+                photo.Should().NotBeNull();
+                photo.Id.Should().Be(id);
+                photo.FileId.Should().BeEmpty();
+                photo.Name.Should().NotBeNullOrWhiteSpace();
+                photo.CreatedAt.Should().BeNull();
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+
+            ex.Should().NotBeNull();
+            ex.Message.Should().Be("Requested columns are not found in the entity.");
+        }
+        
         [Fact(DisplayName = "Should insert single photo successfully")]
         public async Task InsertOneTest()
         {
