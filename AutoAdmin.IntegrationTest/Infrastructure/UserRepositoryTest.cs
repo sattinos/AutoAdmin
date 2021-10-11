@@ -13,6 +13,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
     [Collection("AutoAdmin Collection"), Order(3)]
     public class UserRepositoryTest {
         private readonly UserRepository _userRep;
+        private static User InsertedUser = null;
 
         public UserRepositoryTest(TestFactory testFactory) {
             _userRep = testFactory.Server.Services.GetService<UserRepository>();
@@ -135,7 +136,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
                 PasswordSalt = "",
                 Phone = "9844721555",
                 Email = "someemail@gmail.com",
-                IsVerified = true
+                IsVerified = false
             };
             var insertedUser = await _userRep.InsertOneAsync(user);
             insertedUser.Should().NotBeNull();
@@ -147,23 +148,36 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             insertedUser.Phone.Should().Be(user.Phone);
             insertedUser.Email.Should().Be(user.Email);
             insertedUser.IsVerified.Should().Be(user.IsVerified);
+            InsertedUser = insertedUser;
         }
         
-        [Fact(DisplayName = "Should delete satinos user"), Order(9)]
+        [Fact(DisplayName = "Should update one successfully"), Order(9)]
+        public async Task UpdateOneTest()
+        {
+            InsertedUser.Email = "newEmail1@gmail.com";
+            InsertedUser.IsVerified = true;
+            var affectedRows= await _userRep.UpdateOneAsync(InsertedUser);
+            affectedRows.Should().Be(1);
+
+            var user = await _userRep.GetByIdAsync(InsertedUser.Id);
+            user.Should().BeEquivalentTo(InsertedUser);
+        }
+        
+        [Fact(DisplayName = "Should delete satinos user"), Order(10)]
         public async Task DeleteTest()
         {
             var affectedRows= await _userRep.DeleteAsync("UserName = @un", new { un = "satinos" });
             affectedRows.Should().Be(1);
         }
         
-        [Fact(DisplayName = "Should count all users"), Order(10)]
+        [Fact(DisplayName = "Should count all users"), Order(11)]
         public async Task CountAllTest()
         {
             var count= await _userRep.CountAsync();
             count.Should().Be(8);
         }
         
-        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(11)]
+        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(12)]
         public async Task CountWhereTest()
         {
             var count= await _userRep.CountAsync("BirthDate < @birthDate",new { birthDate = new DateTime(1986, 1, 1) });
