@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  auto-admin-db:
+    container_name: auto-admin-db
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - autoadmin-mysql-data:/mnt/d/mysql-data/autoadmin
+    env_file:
+      - ./env/auto-admin.env    
+    restart: on-failure
+
+  auto-admin-backend:
+    container_name: auto-admin-backend
+    build:
+      context: ./AutoAdmin
+      dockerfile: Dockerfile
+    image: auto-admin-backend:runtime
+    ports:
+      - "5000:5000"
+    depends_on:
+      - auto-admin-db
+    env_file:
+      - ./env/auto-admin.env
+volumes:
+  autoadmin-mysql-data:

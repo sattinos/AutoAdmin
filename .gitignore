@@ -52,4 +52,4 @@ packages
 
 # JetBrains Rider's auto generated files
 .idea/
-
+.vscode/

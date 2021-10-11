@@ -34,7 +34,7 @@ namespace AutoAdmin.Infrastructure {
         private string[] Columns { get; set; }
         public PropertyInfo[] Properties { get; set; }
 
-        public async Task<IEnumerable<T>> GetMany(string[] columns = null,
+        public Task<IEnumerable<T>> GetMany(string[] columns = null,
                                      string condition = null,
                                      object parameters = null,
                                      int pageIndex = 0,
@@ -44,25 +44,25 @@ namespace AutoAdmin.Infrastructure {
             _sqlBuilder.Select(columns)
                        .Where(condition)
                        .Page(pageIndex, pageSize);
-            return await _dbContext.Connection.QueryAsync<T>(_sqlBuilder.Sql, parameters);
+            return _dbContext.Connection.QueryAsync<T>(_sqlBuilder.Sql, parameters);
         }
 
-        public async Task<T> GetOneAsync(string[] columns = null,
+        public Task<T> GetOneAsync(string[] columns = null,
                                          string condition = null,
                                          object parameters = null) {
             ScanColumns(columns);
             _sqlBuilder.Reset();
             _sqlBuilder.Select(columns)
                        .Where(condition);
-            return await _dbContext.Connection.QueryFirstOrDefaultAsync<T>(_sqlBuilder.Sql, parameters);
+            return _dbContext.Connection.QueryFirstOrDefaultAsync<T>(_sqlBuilder.Sql, parameters);
         }
 
-        public async Task<T> GetByIdAsync(TKeyType idArg) {
+        public Task<T> GetByIdAsync(TKeyType idArg) {
             var where = _isGuid ? "Id = UUID_TO_BIN(@id)" : $"Id = @id";
             if (_isGuid) {
-                return await GetOneAsync(null, where, new { id = idArg.ToString() });
+                return GetOneAsync(null, where, new { id = idArg.ToString() });
             }
-            return await GetOneAsync(null, where, new { id = idArg });
+            return GetOneAsync(null, where, new { id = idArg });
         }
 
         public async Task<T> InsertOneAsync(T entity) {
@@ -77,26 +77,33 @@ namespace AutoAdmin.Infrastructure {
             return await _dbContext.Connection.QueryFirstOrDefaultAsync<T>(_sqlBuilder.Sql);
         }
 
-        public async Task<int> CountAsync(
+        public Task<int> UpdateOneAsync(T entity)
+        {
+            _sqlBuilder.Reset();
+            _sqlBuilder.UpdateOne(entity);
+            return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql);
+        }
+
+        public Task<int> CountAsync(
             string condition = null,
             object parameters = null)
         {
             _sqlBuilder.Reset();
             _sqlBuilder.Count(TableName);
             _sqlBuilder.Where(condition);
-            return await _dbContext.Connection.QueryFirstOrDefaultAsync<int>(_sqlBuilder.Sql, parameters);
+            return _dbContext.Connection.QueryFirstOrDefaultAsync<int>(_sqlBuilder.Sql, parameters);
         }
 
-        public async Task<int> DeleteAsync(string condition = null, object parameters = null)
+        public Task<int> DeleteAsync(string condition = null, object parameters = null)
         {
             _sqlBuilder.Reset();
             _sqlBuilder.Delete();
             if (!string.IsNullOrWhiteSpace(condition))
             {
                 _sqlBuilder.Where(condition);
-                return await _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql, parameters);
+                return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql, parameters);
             }
-            return await _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql);
+            return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql);
         }
         
         private void ScanColumns(IEnumerable<string> columns) {

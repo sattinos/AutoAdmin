@@ -25,7 +25,7 @@ namespace AutoAdmin.IntegrationTest.Injection
             _configurations.ConnectionString.Should().NotBeNullOrWhiteSpace();
 
             _configurations.Process();
-            _configurations.Server.Should().BeEquivalentTo("localhost");
+            _configurations.Server.Should().BeEquivalentTo("127.0.0.1");
             _configurations.Port.Should().BeEquivalentTo("3306");
             _configurations.DbName.Should().BeEquivalentTo("AutoAdminDb");
             _configurations.User.Should().BeEquivalentTo("root");
