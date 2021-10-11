@@ -13,7 +13,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
     [Collection("AutoAdmin Collection"), Order(3)]
     public class UserRepositoryTest {
         private readonly UserRepository _userRep;
-        private static User InsertedUser = null;
+        private static User _insertedUser = null;
 
         public UserRepositoryTest(TestFactory testFactory) {
             _userRep = testFactory.Server.Services.GetService<UserRepository>();
@@ -148,19 +148,19 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             insertedUser.Phone.Should().Be(user.Phone);
             insertedUser.Email.Should().Be(user.Email);
             insertedUser.IsVerified.Should().Be(user.IsVerified);
-            InsertedUser = insertedUser;
+            _insertedUser = insertedUser;
         }
         
         [Fact(DisplayName = "Should update one successfully"), Order(9)]
         public async Task UpdateOneTest()
         {
-            InsertedUser.Email = "newEmail1@gmail.com";
-            InsertedUser.IsVerified = true;
-            var affectedRows= await _userRep.UpdateOneAsync(InsertedUser);
+            _insertedUser.Email = "newEmail1@gmail.com";
+            _insertedUser.IsVerified = true;
+            var affectedRows= await _userRep.UpdateOneAsync(_insertedUser);
             affectedRows.Should().Be(1);
 
-            var user = await _userRep.GetByIdAsync(InsertedUser.Id);
-            user.Should().BeEquivalentTo(InsertedUser);
+            var user = await _userRep.GetByIdAsync(_insertedUser.Id);
+            user.Should().BeEquivalentTo(_insertedUser);
         }
         
         [Fact(DisplayName = "Should delete satinos user"), Order(10)]
