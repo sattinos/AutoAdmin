@@ -70,6 +70,12 @@ namespace AutoAdmin.Controllers
             return _baseRepository.InsertOneAsync(entity);
         }
         
+        [HttpPost(Endpoints.UpdateOne)]
+        public Task<int> UpdateOne([FromBody] T entity)
+        {
+            return _baseRepository.UpdateOneAsync(entity);
+        }
+        
         [HttpDelete("{Endpoints.DeleteOne}/{id}")]
         public Task<int> DeleteOne(TKeyType id)
         {
