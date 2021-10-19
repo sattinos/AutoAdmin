@@ -17,6 +17,7 @@ namespace AutoAdmin.IntegrationTest.Controllers
     public class UserControllerTest
     {
         private readonly HttpClient _httpClient;
+        private static User InsertedUser = null;
 
         public UserControllerTest(TestFactory testFactory)
         {
@@ -150,12 +151,33 @@ namespace AutoAdmin.IntegrationTest.Controllers
                         PasswordSalt = "",
                         Phone = "9744711515",
                         Email = "someemaile@gmail.com",
-                        IsVerified = true
+                        IsVerified = false
                     }
                 );
+            InsertedUser = JsonConvert.DeserializeObject<User>(await res.Content.ReadAsStringAsync());
             res.StatusCode.Should().Be(HttpStatusCode.OK);
+            InsertedUser.Should().NotBeNull();
         }
-        
+
+        [Fact(DisplayName = "Should update one user successfully")]
+        public async Task UpdateOneTest()
+        {
+            var res = await _httpClient.PostAsJsonAsync<User>($"api/User/{Endpoints.UpdateOne}",
+                new User()
+                {
+                    Id = InsertedUser.Id,
+                    FullName = "Modified from UPI",
+                    BirthDate = DateTime.Now.Date.AddYears(-10),
+                    IsVerified = true
+                }
+            );
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseAsString = await res.Content.ReadAsStringAsync();
+            var numberOfUpdated = int.Parse(responseAsString);
+            numberOfUpdated.Should().BePositive();
+        }
+
         [Fact(DisplayName = "Delete One by Id")]
         public async Task DeleteOneByIdTest()
         {

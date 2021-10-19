@@ -108,11 +108,7 @@ namespace AutoAdmin.Infrastructure {
         }
 
         public string LastInsertedId { get; private set; }
-        public string Sql {
-            get {
-                return _stringBuilder.ToString();
-            }
-        }
+        public string Sql => _stringBuilder.ToString();
 
         public void Reset() {
             _stringBuilder.Clear();
