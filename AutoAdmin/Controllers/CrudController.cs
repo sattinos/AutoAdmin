@@ -70,6 +70,12 @@ namespace AutoAdmin.Controllers
             return _baseRepository.InsertOneAsync(entity);
         }
         
+        [HttpPost(Endpoints.InsertMany)]
+        public Task<int> InsertMany([FromBody] T[] entity)
+        {
+            return _baseRepository.InsertManyAsync(entity);
+        }
+        
         [HttpPost(Endpoints.UpdateOne)]
         public Task<int> UpdateOne([FromBody] T entity)
         {

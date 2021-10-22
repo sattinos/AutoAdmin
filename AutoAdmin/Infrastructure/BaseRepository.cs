@@ -76,6 +76,13 @@ namespace AutoAdmin.Infrastructure {
 
             return await _dbContext.Connection.QueryFirstOrDefaultAsync<T>(_sqlBuilder.Sql);
         }
+        
+        public async Task<int> InsertManyAsync(IEnumerable<T> entity) {
+            _sqlBuilder.Reset();
+            _sqlBuilder.InsertMany(entity);
+            var res = await _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql);
+            return res;
+        }
 
         public Task<int> UpdateOneAsync(T entity)
         {

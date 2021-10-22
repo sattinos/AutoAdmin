@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -101,7 +102,7 @@ namespace AutoAdmin.IntegrationTest.Controllers
             content.Should().NotBeNullOrWhiteSpace();
             var users = JsonConvert.DeserializeObject<User[]>(content);
             users.Should().NotBeNull();
-            users.Length.Should().Be(2);
+            users.Length.Should().Be(5);
             foreach (var user in users)
             {
                 user.Should().NotBeNull();
@@ -118,7 +119,7 @@ namespace AutoAdmin.IntegrationTest.Controllers
         {
             var res = await _httpClient.PostAsJsonAsync<QueryDto>($"api/User/{Endpoints.Count}", null);
             var count = int.Parse(await res.Content.ReadAsStringAsync());
-            count.Should().Be(8);
+            count.Should().Be(100008);
         }
         
         [Fact(DisplayName = "Should count users with constraints")]
@@ -130,7 +131,7 @@ namespace AutoAdmin.IntegrationTest.Controllers
                     Condition = "IsVerified=1"
                 });
             var count = int.Parse(await res.Content.ReadAsStringAsync());
-            count.Should().Be(5);
+            count.Should().Be(100005);
         }
         
         [Fact(DisplayName = "Should insert one user successfully")]
@@ -157,6 +158,38 @@ namespace AutoAdmin.IntegrationTest.Controllers
             InsertedUser = JsonConvert.DeserializeObject<User>(await res.Content.ReadAsStringAsync());
             res.StatusCode.Should().Be(HttpStatusCode.OK);
             InsertedUser.Should().NotBeNull();
+        }
+        
+        [Fact(DisplayName = "Should insert many users successfully")]
+        public async Task InsertManyUsersTest()
+        {
+            var users = new List<User>();
+            const int count = 100;
+            const int offset = 0;
+            for (int i = offset; i < count + offset; i++)
+            {
+                users.Add(new User()
+                {
+                    CreatedAt = DateTime.Now.Date,
+                    CreatedBy = $"api-user{i}",
+                    UpdatedAt = null,
+                    UpdatedBy = null,
+                
+                    FullName = $"api-user{i}",
+                    UserName = $"api-user{i}",
+                    BirthDate = DateTime.Now.Date,
+                    PasswordHash = "",
+                    PasswordSalt = "",
+                    Phone = $"984472155{i}",
+                    Email = $"api-user{i}@gmail.com",
+                    IsVerified = true
+                });
+            }
+            
+            var res = await _httpClient.PostAsJsonAsync<List<User>>($"api/User/{Endpoints.InsertMany}", users);
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+            var insertedCount = int.Parse(await res.Content.ReadAsStringAsync());
+            insertedCount.Should().Be(users.Count);
         }
 
         [Fact(DisplayName = "Should update one user successfully")]
