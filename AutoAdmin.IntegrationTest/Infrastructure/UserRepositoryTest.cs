@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -150,8 +151,36 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             insertedUser.IsVerified.Should().Be(user.IsVerified);
             _insertedUser = insertedUser;
         }
+
+        [Fact(DisplayName = "Should insert many users successfully"), Order(9)]
+        public async Task InsertManyTest()
+        {
+            var users = new List<User>();
+            const int count = 100000;
+            for (int i = 0; i < count; i++)
+            {
+                users.Add(new User()
+                {
+                    CreatedAt = DateTime.Now.Date,
+                    CreatedBy = $"new-user{i}",
+                    UpdatedAt = null,
+                    UpdatedBy = null,
+                
+                    FullName = $"new-user{i}",
+                    UserName = $"new-user{i}",
+                    BirthDate = DateTime.Now.Date,
+                    PasswordHash = "",
+                    PasswordSalt = "",
+                    Phone = $"984472155{i}",
+                    Email = $"new-user{i}@gmail.com",
+                    IsVerified = true
+                });
+            }
+            var inserted = await _userRep.InsertManyAsync(users);
+            inserted.Should().Be(users.Count);
+        }
         
-        [Fact(DisplayName = "Should update one successfully"), Order(9)]
+        [Fact(DisplayName = "Should update one successfully"), Order(10)]
         public async Task UpdateOneTest()
         {
             _insertedUser.Email = "newEmail1@gmail.com";
@@ -163,21 +192,21 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             user.Should().BeEquivalentTo(_insertedUser);
         }
         
-        [Fact(DisplayName = "Should delete satinos user"), Order(10)]
+        [Fact(DisplayName = "Should delete satinos user"), Order(11)]
         public async Task DeleteTest()
         {
             var affectedRows= await _userRep.DeleteAsync("UserName = @un", new { un = "satinos" });
             affectedRows.Should().Be(1);
         }
         
-        [Fact(DisplayName = "Should count all users"), Order(11)]
+        [Fact(DisplayName = "Should count all users"), Order(12)]
         public async Task CountAllTest()
         {
             var count= await _userRep.CountAsync();
-            count.Should().Be(8);
+            count.Should().Be(100008);
         }
         
-        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(12)]
+        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(13)]
         public async Task CountWhereTest()
         {
             var count= await _userRep.CountAsync("BirthDate < @birthDate",new { birthDate = new DateTime(1986, 1, 1) });
