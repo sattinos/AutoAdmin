@@ -34,7 +34,7 @@ namespace AutoAdmin.Infrastructure {
         private string[] Columns { get; set; }
         public PropertyInfo[] Properties { get; set; }
 
-        public Task<IEnumerable<T>> GetMany(string[] columns = null,
+        public Task<IEnumerable<T>> GetManyAsync(string[] columns = null,
                                      string condition = null,
                                      object parameters = null,
                                      int pageIndex = 0,
@@ -84,11 +84,21 @@ namespace AutoAdmin.Infrastructure {
             return res;
         }
 
-        public Task<int> UpdateOneAsync(T entity)
+        public Task<int> UpdateOneAsync(T entity, string[] columns, string condition = null, object parameters = null)
         {
             _sqlBuilder.Reset();
-            _sqlBuilder.UpdateOne(entity);
-            return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql);
+            _sqlBuilder.UpdateOne(entity, columns);
+            _sqlBuilder.AppendCondition(condition);
+            return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql, parameters);
+        }
+        
+        // TODO: handle the case of value type properties, right now it only works for reference properties
+        public Task<int> UpdateAsync(T entity, string[] columns, string condition, object parameters = null)
+        {
+            _sqlBuilder.Reset();
+            _sqlBuilder.Update(entity, columns);
+            _sqlBuilder.Where(condition);
+            return _dbContext.Connection.ExecuteAsync(_sqlBuilder.Sql, parameters);
         }
 
         public Task<int> CountAsync(

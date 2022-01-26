@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using AutoAdmin.Config;
-using AutoAdmin.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using AutoAdmin.Config;
+using AutoAdmin.Infrastructure;
 
 namespace AutoAdmin.Controllers
 {
@@ -22,7 +22,7 @@ namespace AutoAdmin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var users = await _userRepository.GetMany();
+            var users = await _userRepository.GetManyAsync(null, null, 0, 10000);
             return Ok($"The start of AutoAdmin: users count: {users.Count()}");
         }
     }
