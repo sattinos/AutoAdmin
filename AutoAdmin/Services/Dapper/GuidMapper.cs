@@ -1,6 +1,6 @@
 ﻿using System;
-using Dapper;
 using AutoAdmin.Core.Dapper.MySql.TypeHandlers;
+using Dapper;
 
 namespace AutoAdmin.Services.Dapper {
     public static class GuidMapper {

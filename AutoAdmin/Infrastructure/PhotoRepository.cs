@@ -1,8 +1,9 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using AutoAdmin.Core.Infrastructure;
 using AutoAdmin.Injection.Attributes;
 using AutoAdmin.Model;
 using AutoAdmin.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoAdmin.Infrastructure {
     [InjectAs(ServiceLifetime.Singleton)]

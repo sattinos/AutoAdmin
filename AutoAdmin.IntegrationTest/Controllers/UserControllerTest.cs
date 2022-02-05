@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using AutoAdmin.Controllers;
+using AutoAdmin.Core.Controllers;
 using AutoAdmin.Dto;
 using AutoAdmin.IntegrationTest.Infrastructure;
 using AutoAdmin.IntegrationTest.Setup;

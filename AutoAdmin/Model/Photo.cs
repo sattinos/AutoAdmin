@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoAdmin.Core.Model;
 
 namespace AutoAdmin.Model {
     public class Photo : BaseEntity<Guid> {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace AutoAdmin.Model {
+namespace AutoAdmin.Core.Model {
     /// <summary>
     /// T will be based on business needs. Example values are: byte, ushort, uint, ulong, Guid, etc....
     /// </summary>

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
+using AutoAdmin.Core.Infrastructure;
+using AutoAdmin.Core.Model;
 using Microsoft.AspNetCore.Mvc;
 using AutoAdmin.Dto;
-using AutoAdmin.Infrastructure;
-using AutoAdmin.Model;
 
-namespace AutoAdmin.Controllers
+namespace AutoAdmin.Core.Controllers
 {
     public readonly struct Endpoints
     {
@@ -24,7 +24,7 @@ namespace AutoAdmin.Controllers
     [Route("api/[controller]")]
     public class CrudController<TKeyType, T> : Controller where T : BaseEntity<TKeyType>
     {
-        private BaseRepository<TKeyType, T> _baseRepository;
+        private readonly BaseRepository<TKeyType, T> _baseRepository;
 
         public CrudController(BaseRepository<TKeyType, T> baseRepository)
         {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using AutoAdmin.Core.Collections.Extensions;
-using AutoAdmin.Model;
+using AutoAdmin.Core.Model;
 
-namespace AutoAdmin.Infrastructure {
+namespace AutoAdmin.Core.Infrastructure {
     public class SqlBuilder<TKeyType, T> where T : BaseEntity<TKeyType> {
         private readonly BaseRepository<TKeyType, T> _repository;
 

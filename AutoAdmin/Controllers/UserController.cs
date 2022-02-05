@@ -1,3 +1,4 @@
+using AutoAdmin.Core.Controllers;
 using AutoAdmin.Infrastructure;
 using AutoAdmin.Model;
 

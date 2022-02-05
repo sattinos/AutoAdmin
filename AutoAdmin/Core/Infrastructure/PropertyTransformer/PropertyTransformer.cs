@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using AutoAdmin.Infrastructure.PropertyTransformer.MySql;
+using AutoAdmin.Core.Infrastructure.PropertyTransformer.MySql;
 
-namespace AutoAdmin.Infrastructure.PropertyTransformer
+namespace AutoAdmin.Core.Infrastructure.PropertyTransformer
 {
     public static class PropertyTransformer
     {

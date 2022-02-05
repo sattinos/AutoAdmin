@@ -5,20 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Extensions.Ordering;
+using Xunit.Abstractions;
 using FluentAssertions;
 using AutoAdmin.Infrastructure;
 using AutoAdmin.IntegrationTest.Setup;
 using AutoAdmin.Model;
 
 namespace AutoAdmin.IntegrationTest.Infrastructure {
-    [Collection("AutoAdmin Collection"), Order(3)]
+    [Collection("AutoAdmin Collection"), Order(4)]
     public class UserRepositoryTest {
+        private readonly ITestOutputHelper _testOutputHelper;
         private readonly UserRepository _userRep;
         private static User _insertedUser = null;
 
         public const int NumberOfUsersToSeed = 1000;
 
-        public UserRepositoryTest(TestFactory testFactory) {
+        public UserRepositoryTest(TestFactory testFactory, ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
             _userRep = testFactory.Server.Services.GetService<UserRepository>();
         }
 
