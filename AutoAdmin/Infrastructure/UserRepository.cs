@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoAdmin.Core.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using AutoAdmin.Injection.Attributes;
 using AutoAdmin.Model;
 using AutoAdmin.Services;

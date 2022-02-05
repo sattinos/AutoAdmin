@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace AutoAdmin.Infrastructure.PropertyTransformer.MySql
+namespace AutoAdmin.Core.Infrastructure.PropertyTransformer.MySql
 {
     public class NullableDateTimeTransformer : IPropertyTransformer
     {

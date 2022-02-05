@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoAdmin.Core.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using AutoAdmin.Core.Reflection;
 using AutoAdmin.Injection.Attributes;
 
 namespace AutoAdmin.Injection
@@ -32,7 +32,6 @@ namespace AutoAdmin.Injection
     {
         public static void StartInjection(IServiceCollection services, IConfiguration configuration, Assembly assembly = null)
         {
-            // InjectAssemblyServices(services, assembly);
             InjectServices(services, assembly);
             InjectConfigurationSections(services, configuration, assembly);
         }

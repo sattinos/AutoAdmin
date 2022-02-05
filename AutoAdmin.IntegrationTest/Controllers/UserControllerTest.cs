@@ -4,7 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using AutoAdmin.Controllers;
+using AutoAdmin.Core.Controllers;
+using AutoAdmin.Dto;
+using AutoAdmin.IntegrationTest.Infrastructure;
 using AutoAdmin.IntegrationTest.Setup;
 using AutoAdmin.Model;
 using Xunit;
@@ -38,19 +40,25 @@ namespace AutoAdmin.IntegrationTest.Controllers
         [Fact(DisplayName = "Should return one user with only selected columns")]
         public async Task GetOneAsyncSelectedColumnsTest()
         {
-            var res = await _httpClient.PostAsJsonAsync("api/User/getOne",
-                new QueryDto()
-                {
-                    Columns = new[] { nameof(User.Id), nameof(User.Email) }, 
-                    Condition = "Id=@id",
-                    Parameters = JsonConvert.SerializeObject(new { id = 2 })
-                });
-            var content = await res.Content.ReadAsStringAsync();
-            var user = JsonConvert.DeserializeObject<User>(content);
+            var user = await FetchUserById(2);
             user.Should().NotBeNull();
             user.Email.Should().NotBeNullOrWhiteSpace();
             user.Id.Should().BeGreaterOrEqualTo(0);
             user.Phone.Should().BeNull();
+        }
+
+        private async Task<User> FetchUserById(uint id)
+        {
+            var res = await _httpClient.PostAsJsonAsync("api/User/getOne",
+                new QueryDto()
+                {
+                    Columns = new[] { nameof(User.Id), nameof(User.Email), nameof(User.FullName) }, 
+                    Condition = "Id=@id",
+                    Parameters = JsonConvert.SerializeObject(new { id })
+                });
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+            var content = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<User>(content);
         }
 
         [Fact(DisplayName = "Should return all users")]
@@ -119,7 +127,7 @@ namespace AutoAdmin.IntegrationTest.Controllers
         {
             var res = await _httpClient.PostAsJsonAsync<QueryDto>($"api/User/{Endpoints.Count}", null);
             var count = int.Parse(await res.Content.ReadAsStringAsync());
-            count.Should().Be(100008);
+            count.Should().Be(UserRepositoryTest.NumberOfUsersToSeed + 8);
         }
         
         [Fact(DisplayName = "Should count users with constraints")]
@@ -128,10 +136,11 @@ namespace AutoAdmin.IntegrationTest.Controllers
             var res = await _httpClient.PostAsJsonAsync<QueryDto>($"api/User/{Endpoints.Count}", 
                 new QueryDto()
                 {
-                    Condition = "IsVerified=1"
+                    Condition = "IsVerified=@p",
+                    Parameters = JsonConvert.SerializeObject(new { p = true} )
                 });
             var count = int.Parse(await res.Content.ReadAsStringAsync());
-            count.Should().Be(100005);
+            count.Should().Be(5);
         }
         
         [Fact(DisplayName = "Should insert one user successfully")]
@@ -195,20 +204,57 @@ namespace AutoAdmin.IntegrationTest.Controllers
         [Fact(DisplayName = "Should update one user successfully")]
         public async Task UpdateOneTest()
         {
-            var res = await _httpClient.PostAsJsonAsync<User>($"api/User/{Endpoints.UpdateOne}",
-                new User()
+            var discardedBirthDate = DateTime.Now.Date.AddYears(-10);
+            var res = await _httpClient.PostAsJsonAsync<UpdateQueryDto<User>>($"api/User/{Endpoints.UpdateOne}",
+                new UpdateQueryDto<User>()
                 {
-                    Id = InsertedUser.Id,
-                    FullName = "Modified from UPI",
-                    BirthDate = DateTime.Now.Date.AddYears(-10),
-                    IsVerified = true
-                }
-            );
+                    Entity = new User()
+                    {
+                        Id = InsertedUser.Id,
+                        FullName = "Modified from API",
+                        BirthDate = discardedBirthDate
+                    },
+                    Columns = new[] { nameof(User.FullName) } 
+                });
             res.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var responseAsString = await res.Content.ReadAsStringAsync();
             var numberOfUpdated = int.Parse(responseAsString);
-            numberOfUpdated.Should().BePositive();
+            numberOfUpdated.Should().Be(1);
+            
+            var updatedUser = await FetchUserById(InsertedUser.Id);
+            updatedUser.FullName.Should().Be("Modified from API");
+            updatedUser.BirthDate.Should().NotBe(discardedBirthDate);
+        }
+        
+        [Fact(DisplayName = "Should update many users successfully")]
+        public async Task UpdateManyTest()
+        {
+            var countApiCallResult = await _httpClient.PostAsJsonAsync<QueryDto>($"api/User/{Endpoints.Count}", 
+                new QueryDto()
+                {
+                    Condition = "IsVerified=@p",
+                    Parameters = JsonConvert.SerializeObject(new { p = true} )
+                });
+            var count = int.Parse(await countApiCallResult.Content.ReadAsStringAsync());
+            
+            var targetHash = "$4v$14$bz1HsUl/B4WXSiFqGepaenTCCawZjmdYrxcEaVnSLPNKEkhQdTgM";
+            var res = await _httpClient.PostAsJsonAsync<UpdateQueryDto<User>>($"api/User/{Endpoints.UpdateMany}",
+                new UpdateQueryDto<User>()
+                {
+                    Entity = new User()
+                    {
+                        PasswordHash = targetHash
+                    },
+                    Columns = new[] { nameof(User.PasswordHash) },
+                    Condition = "IsVerified=@p",
+                    Parameters = JsonConvert.SerializeObject(new { p = true })
+                });
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseAsString = await res.Content.ReadAsStringAsync();
+            var numberOfUpdated = int.Parse(responseAsString);
+            numberOfUpdated.Should().Be(count); 
         }
 
         [Fact(DisplayName = "Delete One by Id")]
@@ -225,11 +271,12 @@ namespace AutoAdmin.IntegrationTest.Controllers
         {
             var res = await _httpClient.PostAsJsonAsync($"api/User/{Endpoints.DeleteMany}", new QueryDto()
             {
-                Condition = "IsVerified=0"
+                Condition = "IsVerified=@p",
+                Parameters = JsonConvert.SerializeObject(new { p = 0 }) 
             });
             res.StatusCode.Should().Be(HttpStatusCode.OK);
             var deletedEntitiesCount = int.Parse(await res.Content.ReadAsStringAsync());
-            deletedEntitiesCount.Should().Be(3);
+            deletedEntitiesCount.Should().Be(UserRepositoryTest.NumberOfUsersToSeed + 4);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
             }
 
             ex.Should().NotBeNull();
-            ex.Message.Should().Be("Requested columns are not found in the entity.");
+            ex.Message.Should().Be("someHackedName column are not found in the entity.");
         }
         
         [Fact(DisplayName = "Should insert single photo successfully")]

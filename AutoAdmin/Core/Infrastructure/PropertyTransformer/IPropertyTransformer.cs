@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AutoAdmin.Infrastructure.PropertyTransformer
+namespace AutoAdmin.Core.Infrastructure.PropertyTransformer
 {
     public interface IPropertyTransformer
     {

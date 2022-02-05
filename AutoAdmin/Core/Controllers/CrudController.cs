@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
+using AutoAdmin.Core.Infrastructure;
+using AutoAdmin.Core.Model;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using AutoAdmin.Infrastructure;
-using AutoAdmin.Model;
+using AutoAdmin.Dto;
 
-namespace AutoAdmin.Controllers
+namespace AutoAdmin.Core.Controllers
 {
     public readonly struct Endpoints
     {
@@ -24,7 +24,7 @@ namespace AutoAdmin.Controllers
     [Route("api/[controller]")]
     public class CrudController<TKeyType, T> : Controller where T : BaseEntity<TKeyType>
     {
-        private BaseRepository<TKeyType, T> _baseRepository;
+        private readonly BaseRepository<TKeyType, T> _baseRepository;
 
         public CrudController(BaseRepository<TKeyType, T> baseRepository)
         {
@@ -34,33 +34,21 @@ namespace AutoAdmin.Controllers
         [HttpPost(Endpoints.GetOne)]
         public Task<T> GetOneAsync([FromBody] QueryDto queryDto)
         {
-            ExpandoObject parameters = null;
-            if (queryDto != null && queryDto.Parameters != null)
-            {
-                parameters = JsonConvert.DeserializeObject<ExpandoObject>(queryDto?.Parameters);
-            }
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
             return _baseRepository.GetOneAsync(queryDto?.Columns, queryDto?.Condition, parameters);
         }
         
         [HttpPost(Endpoints.GetMany)]
         public Task<IEnumerable<T>> GetManyAsync([FromBody] QueryDto queryDto)
         {
-            ExpandoObject parameters = null;
-            if (queryDto != null && queryDto.Parameters != null)
-            {
-                parameters = JsonConvert.DeserializeObject<ExpandoObject>(queryDto?.Parameters);
-            }
-            return _baseRepository.GetMany(queryDto?.Columns, queryDto?.Condition, parameters);
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
+            return _baseRepository.GetManyAsync(queryDto?.Columns, queryDto?.Condition, parameters);
         }
 
         [HttpPost(Endpoints.Count)]
         public Task<int> CountAsync([FromBody] QueryDto queryDto)
         {
-            ExpandoObject parameters = null;
-            if (queryDto != null && queryDto.Parameters != null)
-            {
-                parameters = JsonConvert.DeserializeObject<ExpandoObject>(queryDto?.Parameters);
-            }
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
             return _baseRepository.CountAsync(queryDto?.Condition, parameters);
         }
         
@@ -77,9 +65,17 @@ namespace AutoAdmin.Controllers
         }
         
         [HttpPost(Endpoints.UpdateOne)]
-        public Task<int> UpdateOne([FromBody] T entity)
+        public Task<int> UpdateOne([FromBody] UpdateQueryDto<T> queryDto)
         {
-            return _baseRepository.UpdateOneAsync(entity);
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
+            return _baseRepository.UpdateOneAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
+        }
+
+        [HttpPost(Endpoints.UpdateMany)]
+        public Task<int> UpdateMany([FromBody] UpdateQueryDto<T> queryDto)
+        {
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
+            return _baseRepository.UpdateAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
         }
         
         [HttpDelete("{Endpoints.DeleteOne}/{id}")]
@@ -91,11 +87,7 @@ namespace AutoAdmin.Controllers
         [HttpPost(Endpoints.DeleteMany)]
         public Task<int> DeleteMany([FromBody] QueryDto queryDto)
         {
-            ExpandoObject parameters = null;
-            if (queryDto != null && queryDto.Parameters != null)
-            {
-                parameters = JsonConvert.DeserializeObject<ExpandoObject>(queryDto?.Parameters);
-            }
+            ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
             return _baseRepository.DeleteAsync(queryDto?.Condition, parameters);
         }
     }

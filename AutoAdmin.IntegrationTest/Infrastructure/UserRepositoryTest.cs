@@ -5,18 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Extensions.Ordering;
+using Xunit.Abstractions;
 using FluentAssertions;
 using AutoAdmin.Infrastructure;
 using AutoAdmin.IntegrationTest.Setup;
 using AutoAdmin.Model;
 
 namespace AutoAdmin.IntegrationTest.Infrastructure {
-    [Collection("AutoAdmin Collection"), Order(3)]
+    [Collection("AutoAdmin Collection"), Order(4)]
     public class UserRepositoryTest {
+        private readonly ITestOutputHelper _testOutputHelper;
         private readonly UserRepository _userRep;
         private static User _insertedUser = null;
 
-        public UserRepositoryTest(TestFactory testFactory) {
+        public const int NumberOfUsersToSeed = 1000;
+
+        public UserRepositoryTest(TestFactory testFactory, ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
             _userRep = testFactory.Server.Services.GetService<UserRepository>();
         }
 
@@ -29,7 +35,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
 
         [Fact(DisplayName = "Should return all users"), Order(2)]
         public async Task GetAllTest() {
-            var allUsers = (await _userRep.GetMany(null, "Id < @id", new {id = 4})).ToList();
+            var allUsers = (await _userRep.GetManyAsync(null, "Id < @id", new {id = 4})).ToList();
             allUsers.Should().NotBeNull();
             allUsers.Count.Should().BeGreaterThan(0);
             allUsers.Count.Should().BeLessThan(6);
@@ -38,7 +44,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
         [Fact(DisplayName = "Should return all users but each user has (Id, FullName, UserName) only"), Order(3)]
         public async Task GetAllColumnsSelectorTest() {
 
-            var allUsers = (await _userRep.GetMany(
+            var allUsers = (await _userRep.GetManyAsync(
                 new [] { "Id", "FullName", "UserName" }, 
                 "Id < @id", 
                 new { id = 4 })).ToList();
@@ -55,17 +61,18 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
 
         [Fact(DisplayName = "Should return all users but each user has Id only"), Order(4)]
         public async Task GetAllColumnsSelectorTestWithDateQuery() {
-            var allUsers = (await _userRep.GetMany(
-                new [] { "Id", "FullName", "UserName", "BirthDate" }, 
+            var allUsers = (await _userRep.GetManyAsync(
+                new [] { "Id" }, 
                 "BirthDate < @birthDate", 
                 new { birthDate = new DateTime(1995, 1, 1) })).ToList();
             allUsers.Should().NotBeNull();
             allUsers.Count.Should().BeGreaterThan(0);
             foreach (var user in allUsers) {
-                user.BirthDate.Should().NotBeNull();
+                user.Id.Should().BePositive();
+                user.BirthDate.Should().BeNull();
                 user.Phone.Should().BeNull();
-                user.FullName.Should().NotBeNullOrEmpty();
-                user.UserName.Should().NotBeNullOrEmpty();
+                user.FullName.Should().BeNull();
+                user.UserName.Should().BeNull();
             }
             allUsers.Count.Should().BeLessThan(6);
         }
@@ -156,8 +163,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
         public async Task InsertManyTest()
         {
             var users = new List<User>();
-            const int count = 100000;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < NumberOfUsersToSeed; i++)
             {
                 users.Add(new User()
                 {
@@ -173,7 +179,7 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
                     PasswordSalt = "",
                     Phone = $"984472155{i}",
                     Email = $"new-user{i}@gmail.com",
-                    IsVerified = true
+                    IsVerified = false
                 });
             }
             var inserted = await _userRep.InsertManyAsync(users);
@@ -185,32 +191,49 @@ namespace AutoAdmin.IntegrationTest.Infrastructure {
         {
             _insertedUser.Email = "newEmail1@gmail.com";
             _insertedUser.IsVerified = true;
-            var affectedRows= await _userRep.UpdateOneAsync(_insertedUser);
+            var affectedRows= await _userRep.UpdateOneAsync(_insertedUser, new []{ nameof(User.Email), nameof(User.IsVerified) });
             affectedRows.Should().Be(1);
 
             var user = await _userRep.GetByIdAsync(_insertedUser.Id);
             user.Should().BeEquivalentTo(_insertedUser);
+            user.IsVerified.Should().Be(true);
         }
         
-        [Fact(DisplayName = "Should delete satinos user"), Order(11)]
+        [Fact(DisplayName = "Should update many users successfully"), Order(11)]
+        public async Task UpdateManyTest()
+        {
+            _insertedUser.Email = "newEmail1@gmail.com";
+            _insertedUser.IsVerified = true;
+
+            var whereCondition = "UserName LIKE @p";
+            var parameters = new {p = "%new-user%"};
+            var affectedRows= await _userRep.UpdateAsync(new User() { PasswordHash = "$2a$12$bz1EsslS/F4WXSiFqGepaenTCCawZjmdYrxcEaVnSLPNKEkhQdWgK" },
+                new []{ nameof(User.PasswordHash)},
+                whereCondition, parameters);
+            affectedRows.Should().Be(NumberOfUsersToSeed);
+        }
+        
+        [Fact(DisplayName = "Should delete satinos user"), Order(12)]
         public async Task DeleteTest()
         {
             var affectedRows= await _userRep.DeleteAsync("UserName = @un", new { un = "satinos" });
             affectedRows.Should().Be(1);
         }
         
-        [Fact(DisplayName = "Should count all users"), Order(12)]
+        [Fact(DisplayName = "Should count all users"), Order(13)]
         public async Task CountAllTest()
         {
             var count= await _userRep.CountAsync();
-            count.Should().Be(100008);
+            count.Should().Be(NumberOfUsersToSeed+8);
         }
-        
-        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(13)]
+
+        [Fact(DisplayName = "Should count all users that satisfy where condition"), Order(14)]
         public async Task CountWhereTest()
         {
-            var count= await _userRep.CountAsync("BirthDate < @birthDate",new { birthDate = new DateTime(1986, 1, 1) });
-            count.Should().Be(3);
+            var whereCondition = "UserName LIKE @p";
+            var parameters = new {p = "%new-user%"};
+            var count= await _userRep.CountAsync(whereCondition, parameters);
+            count.Should().Be(NumberOfUsersToSeed);
         }
     }
 }
