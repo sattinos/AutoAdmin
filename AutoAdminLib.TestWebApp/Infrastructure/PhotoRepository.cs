@@ -7,7 +7,7 @@ using AutoAdminLib.TestWebApp.Model;
 
 namespace AutoAdminLib.TestWebApp.Infrastructure {
     [InjectAs(ServiceLifetime.Singleton)]
-    public class PhotoRepository : BaseRepository<Guid, Photo> {
+    public class PhotoRepository : CrudRepository<Guid, Photo> {
         public PhotoRepository(DbContext dbContext) : base(dbContext) {
         }
     }

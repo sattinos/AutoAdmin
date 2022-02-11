@@ -6,7 +6,7 @@ using AutoAdminLib.TestWebApp.Model;
 
 namespace AutoAdminLib.TestWebApp.Infrastructure {
     [InjectAs(ServiceLifetime.Singleton)]
-    public class UserRepository : BaseRepository<uint, User> {
+    public class UserRepository : CrudRepository<uint, User> {
         public UserRepository(DbContext dbContext) : base(dbContext) {
         }
     }

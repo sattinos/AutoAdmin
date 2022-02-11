@@ -6,11 +6,11 @@ using AutoAdminLib.Model;
 
 namespace AutoAdminLib.Infrastructure {
     public class SqlBuilder<TKeyType, T> where T : BaseEntity<TKeyType> {
-        private readonly BaseRepository<TKeyType, T> _repository;
+        private readonly CrudRepository<TKeyType, T> _repository;
 
         private readonly StringBuilder _stringBuilder = new (200);
 
-        public SqlBuilder(BaseRepository<TKeyType, T> repository)
+        public SqlBuilder(CrudRepository<TKeyType, T> repository)
         {
             _repository = repository;
         }

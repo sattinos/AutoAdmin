@@ -8,12 +8,12 @@ using AutoAdminLib.Services;
 using Dapper;
 
 namespace AutoAdminLib.Infrastructure {
-    public abstract class BaseRepository<TKeyType, T> where T : BaseEntity<TKeyType> {
+    public abstract class CrudRepository<TKeyType, T> where T : BaseEntity<TKeyType> {
         private readonly DbContext _dbContext;
         private readonly SqlBuilder<TKeyType, T> _sqlBuilder;
         private readonly bool _isGuid = typeof(TKeyType) == typeof(Guid);
 
-        protected BaseRepository(DbContext dbContext) {
+        protected CrudRepository(DbContext dbContext) {
             _dbContext = dbContext;
             TableName = typeof(T).Name;
             FetchEntityColumns();
