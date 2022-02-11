@@ -24,71 +24,71 @@ namespace AutoAdminLib.Controllers
     [Route("api/[controller]")]
     public class CrudController<TKeyType, T> : ControllerBase where T : BaseEntity<TKeyType>
     {
-        private readonly BaseRepository<TKeyType, T> _baseRepository;
+        private readonly CrudRepository<TKeyType, T> _crudRepository;
 
-        public CrudController(BaseRepository<TKeyType, T> baseRepository)
+        public CrudController(CrudRepository<TKeyType, T> crudRepository)
         {
-            _baseRepository = baseRepository;
+            _crudRepository = crudRepository;
         }
 
         [HttpPost(Endpoints.GetOne)]
         public Task<dynamic> GetOneAsync([FromBody] QueryDto queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.GetOneCompactAsync(queryDto?.Columns, queryDto?.Condition, parameters);
+            return _crudRepository.GetOneCompactAsync(queryDto?.Columns, queryDto?.Condition, parameters);
         }
         
         [HttpPost(Endpoints.GetMany)]
         public Task<IEnumerable<dynamic>> GetManyAsync([FromBody] QueryDto queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.GetManyCompactAsync(queryDto?.Columns, queryDto?.Condition, parameters);
+            return _crudRepository.GetManyCompactAsync(queryDto?.Columns, queryDto?.Condition, parameters);
         }
 
         [HttpPost(Endpoints.Count)]
         public Task<int> CountAsync([FromBody] QueryDto queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.CountAsync(queryDto?.Condition, parameters);
+            return _crudRepository.CountAsync(queryDto?.Condition, parameters);
         }
         
         [HttpPost(Endpoints.InsertOne)]
         public Task<T> InsertOne([FromBody] T entity)
         {
-            return _baseRepository.InsertOneAsync(entity);
+            return _crudRepository.InsertOneAsync(entity);
         }
         
         [HttpPost(Endpoints.InsertMany)]
         public Task<int> InsertMany([FromBody] T[] entity)
         {
-            return _baseRepository.InsertManyAsync(entity);
+            return _crudRepository.InsertManyAsync(entity);
         }
         
         [HttpPost(Endpoints.UpdateOne)]
         public Task<int> UpdateOne([FromBody] UpdateQueryDto<T> queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.UpdateOneAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
+            return _crudRepository.UpdateOneAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
         }
 
         [HttpPost(Endpoints.UpdateMany)]
         public Task<int> UpdateMany([FromBody] UpdateQueryDto<T> queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.UpdateAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
+            return _crudRepository.UpdateAsync(queryDto.Entity, queryDto.Columns, queryDto.Condition, parameters);
         }
         
         [HttpDelete("{Endpoints.DeleteOne}/{id}")]
         public Task<int> DeleteOne(TKeyType id)
         {
-            return _baseRepository.DeleteAsync($"id={id}");
+            return _crudRepository.DeleteAsync($"id={id}");
         }
         
         [HttpPost(Endpoints.DeleteMany)]
         public Task<int> DeleteMany([FromBody] QueryDto queryDto)
         {
             ExpandoObject parameters = queryDto?.ConvertParametersToExpando();
-            return _baseRepository.DeleteAsync(queryDto?.Condition, parameters);
+            return _crudRepository.DeleteAsync(queryDto?.Condition, parameters);
         }
     }
 }
